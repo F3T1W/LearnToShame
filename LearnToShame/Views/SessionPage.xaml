@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LearnToShame.ViewModels"
+             x:DataType="vm:SessionViewModel"
+             x:Class="LearnToShame.Views.SessionPage"
+             Title="Training Session"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <VerticalStackLayout Grid.Row="0" Padding="10" BackgroundColor="Black">
+            <Label Text="{Binding TimerText}" TextColor="Red" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold"/>
+        </VerticalStackLayout>
+        
+        <CarouselView Grid.Row="1" ItemsSource="{Binding Images}" Loop="False">
+            <CarouselView.ItemTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding .}" Aspect="AspectFit" BackgroundColor="Black"/>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+        
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" Color="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center"/>
+        
+        <Button Grid.Row="2" Text="FINISH" Command="{Binding FinishSessionCommand}" 
+                BackgroundColor="Red" TextColor="White" HeightRequest="80" FontAttributes="Bold" FontSize="24" Margin="20"/>
+    </Grid>
+
+</ContentPage>

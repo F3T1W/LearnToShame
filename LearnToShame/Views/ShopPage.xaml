@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LearnToShame.ViewModels"
+             x:DataType="vm:ShopViewModel"
+             x:Class="LearnToShame.Views.ShopPage"
+             Title="Points Shop">
+
+    <VerticalStackLayout Spacing="20" Padding="30" VerticalOptions="Center">
+        <Button Text="← Roadmap" 
+                Command="{Binding GoToRoadmapCommand}"
+                HorizontalOptions="Start"
+                Margin="0,0,0,10"/>
+        <Label Text="Your Points" HorizontalOptions="Center"/>
+        <Label Text="{Binding Points}" FontSize="48" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+        
+        <Button Text="Buy Training Session (100 pts)" 
+                Command="{Binding BuySessionCommand}"
+                HeightRequest="60"
+                Margin="0,30,0,0"/>
+                
+        <Label Text="Sessions help you train your endurance." 
+               HorizontalOptions="Center" 
+               TextColor="Gray"
+               FontSize="12"/>
+    </VerticalStackLayout>
+
+</ContentPage>
