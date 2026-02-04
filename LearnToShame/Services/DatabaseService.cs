@@ -48,7 +48,10 @@ public class DatabaseService
             new RoadmapTask { Title = "Team Lead", Description = "Lead a team of 3 developers", Level = DeveloperLevel.Lead, PointsReward = 500 },
             new RoadmapTask { Title = "AI Integration", Description = "Integrate ML.NET model", Level = DeveloperLevel.Lead, PointsReward = 450 }
         };
-        
+        for (var i = 1; i <= 60; i++)
+        {
+            tasks.Add(new RoadmapTask { Title = "Test Sample", Description = $"Test Sample {i}", Level = DeveloperLevel.Intern, PointsReward = 10 });
+        }
         await _database.InsertAllAsync(tasks);
     }
 
@@ -70,7 +73,15 @@ public class DatabaseService
     {
         await Init();
         if (_database is null) throw new InvalidOperationException("Database not initialized");
-        return await _database.Table<RoadmapTask>().ToListAsync();
+        var list = await _database.Table<RoadmapTask>().ToListAsync();
+        // One-time: add 60 test tasks for pagination if DB had only the original 10
+        if (list.Count == 10)
+        {
+            for (var i = 1; i <= 60; i++)
+                await _database.InsertAsync(new RoadmapTask { Title = "Test Sample", Description = $"Test Sample {i}", Level = DeveloperLevel.Intern, PointsReward = 10 });
+            list = await _database.Table<RoadmapTask>().ToListAsync();
+        }
+        return list;
     }
     
     public async Task<List<RoadmapTask>> GetTasksByLevelAsync(DeveloperLevel level)

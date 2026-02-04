@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:LearnToShame.Views"
+             xmlns:helpers="clr-namespace:LearnToShame.Helpers"
+             x:Class="LearnToShame.Views.MainHostPage"
+             Title="LearnToShame"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="*, Auto">
+        <ContentView x:Name="PartContent" Grid.Row="0"/>
+        
+        <Grid Grid.Row="1" ColumnDefinitions="*, *" HeightRequest="56" 
+              BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}" 
+              Padding="0" ColumnSpacing="0">
+            <Button Grid.Column="0" x:Name="RoadmapTab" Text="Roadmap" 
+                    FontSize="20" FontAttributes="Bold"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                    HorizontalOptions="Fill" VerticalOptions="Fill"
+                    MinimumHeightRequest="56" Padding="8">
+                <Button.Behaviors>
+                    <helpers:ButtonPressAnimationBehavior />
+                </Button.Behaviors>
+            </Button>
+            <Button Grid.Column="1" x:Name="ShopTab" Text="Shop"
+                    FontSize="20" FontAttributes="Bold"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Fill" VerticalOptions="Fill"
+                    MinimumHeightRequest="56" Padding="8">
+                <Button.Behaviors>
+                    <helpers:ButtonPressAnimationBehavior />
+                </Button.Behaviors>
+            </Button>
+        </Grid>
+    </Grid>
+</ContentPage>

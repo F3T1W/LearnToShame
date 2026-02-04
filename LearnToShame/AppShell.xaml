@@ -6,9 +6,6 @@
     xmlns:views="clr-namespace:LearnToShame.Views"
     Shell.FlyoutBehavior="Disabled">
 
-    <TabBar>
-        <ShellContent Title="Roadmap" ContentTemplate="{DataTemplate views:RoadmapPage}" Route="RoadmapPage" />
-        <ShellContent Title="Shop" ContentTemplate="{DataTemplate views:ShopPage}" Route="ShopPage" />
-    </TabBar>
+    <ShellContent Title="LearnToShame" ContentTemplate="{DataTemplate views:MainHostPage}" Route="MainHostPage" />
 
 </Shell>

@@ -25,3 +25,10 @@ A MAUI application for programmer motivation and "endurance" training.
 
 - The Reddit API integration uses public JSON endpoints for simplicity.
 - Ensure you have internet access for fetching Reddit content.
+
+### Консоль при запуске на iOS
+
+При запуске в симуляторе или без отладчика в консоли могут появляться сообщения — на работу приложения они не влияют:
+
+- **`Socket error while connecting to IDE on 127.0.0.1:10000: Connection refused`** — приложение пытается подключиться к IDE (hot reload). Если запуск идёт не из Rider/VS или без отладчика, соединение не устанавливается; это нормально.
+- **`UIScene lifecycle will soon be required`** — предупреждение iOS о будущем переходе на сцены. Полная поддержка потребует изменений в .NET MAUI; пока приложение работает в текущем режиме.
