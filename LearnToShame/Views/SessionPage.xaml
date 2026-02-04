@@ -5,7 +5,7 @@
              xmlns:helpers="clr-namespace:LearnToShame.Helpers"
              x:DataType="vm:SessionViewModel"
              x:Class="LearnToShame.Views.SessionPage"
-             Title="Training Session"
+             Title="{Binding Source={StaticResource L}, Path=TrainingSession}"
              Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="Auto, *, Auto">
@@ -23,7 +23,7 @@
         
         <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" Color="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="80" HeightRequest="80"/>
         
-        <Button Grid.Row="2" Text="FINISH" Command="{Binding FinishSessionCommand}" 
+        <Button Grid.Row="2" Text="{Binding Source={StaticResource L}, Path=Finish}" Command="{Binding FinishSessionCommand}" 
                 BackgroundColor="Red" TextColor="White" HeightRequest="96" FontAttributes="Bold" FontSize="32" CornerRadius="14" Margin="32" Padding="32,18">
             <Button.Behaviors>
                 <helpers:ButtonPressAnimationBehavior />

@@ -4,16 +4,27 @@
              xmlns:views="clr-namespace:LearnToShame.Views"
              xmlns:helpers="clr-namespace:LearnToShame.Helpers"
              x:Class="LearnToShame.Views.MainHostPage"
-             Title="LearnToShame"
+             Title="{Binding Source={StaticResource L}, Path=AppName}"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="*, Auto">
-        <ContentView x:Name="PartContent" Grid.Row="0"/>
+    <Grid RowDefinitions="Auto, *, Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="12,8" ColumnSpacing="8"
+              BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}">
+            <BoxView Grid.Column="0" Color="Transparent"/>
+            <Button Grid.Column="1" x:Name="LanguageButton" Text="🌐" FontSize="24"
+                    BackgroundColor="Transparent" Padding="12" MinimumWidthRequest="48" MinimumHeightRequest="44"
+                    Clicked="OnLanguageClicked">
+                <Button.Behaviors>
+                    <helpers:ButtonPressAnimationBehavior />
+                </Button.Behaviors>
+            </Button>
+        </Grid>
+        <ContentView x:Name="PartContent" Grid.Row="1"/>
         
-        <Grid Grid.Row="1" ColumnDefinitions="*, *" HeightRequest="56" 
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" HeightRequest="56" 
               BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}" 
               Padding="0" ColumnSpacing="0">
-            <Button Grid.Column="0" x:Name="RoadmapTab" Text="Roadmap" 
+            <Button Grid.Column="0" x:Name="RoadmapTab" Text="{Binding Source={StaticResource L}, Path=Roadmap}" 
                     FontSize="20" FontAttributes="Bold"
                     BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
                     HorizontalOptions="Fill" VerticalOptions="Fill"
@@ -22,7 +33,7 @@
                     <helpers:ButtonPressAnimationBehavior />
                 </Button.Behaviors>
             </Button>
-            <Button Grid.Column="1" x:Name="ShopTab" Text="Shop"
+            <Button Grid.Column="1" x:Name="ShopTab" Text="{Binding Source={StaticResource L}, Path=Shop}"
                     FontSize="20" FontAttributes="Bold"
                     BackgroundColor="Transparent"
                     HorizontalOptions="Fill" VerticalOptions="Fill"

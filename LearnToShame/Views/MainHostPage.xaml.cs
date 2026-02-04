@@ -1,3 +1,5 @@
+using LearnToShame.Services;
+
 namespace LearnToShame.Views;
 
 public partial class MainHostPage : ContentPage
@@ -14,6 +16,22 @@ public partial class MainHostPage : ContentPage
 
         RoadmapTab.Clicked += (_, _) => ShowRoadmap();
         ShopTab.Clicked += (_, _) => ShowShop();
+    }
+
+    private async void OnLanguageClicked(object? sender, EventArgs e)
+    {
+        var langs = LocalizationService.Languages;
+        var names = langs.Select(x => x.DisplayName).ToArray();
+        var cancelText = LocalizationService.Instance.GetString("CancelButton");
+        var action = await DisplayActionSheet(
+            LocalizationService.Instance.GetString("Language"),
+            cancelText,
+            null,
+            names);
+        if (action == null || action == cancelText) return;
+        var idx = Array.IndexOf(names, action);
+        if (idx >= 0 && idx < langs.Length)
+            LocalizationService.Instance.SetLanguage(langs[idx].Code);
     }
 
     protected override void OnAppearing()

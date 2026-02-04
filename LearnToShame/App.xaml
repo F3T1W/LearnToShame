@@ -2,6 +2,7 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:LearnToShame"
+             xmlns:helpers="clr-namespace:LearnToShame.Helpers"
              x:Class="LearnToShame.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -9,6 +10,10 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <helpers:FormatConverter x:Key="RewardFormatConverter" />
+            <helpers:TaskTextConverter x:Key="TaskTextConverter" />
+            <helpers:TaskTextMultiConverter x:Key="TaskTextMultiConverter" />
+            <helpers:RewardFormatMultiConverter x:Key="RewardFormatMultiConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

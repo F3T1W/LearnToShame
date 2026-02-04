@@ -1,9 +1,12 @@
+using LearnToShame.Services;
+
 namespace LearnToShame.ViewModels;
 
 public partial class SessionViewModel : ObservableObject
 {
     private readonly RedditService _reddit;
     private readonly DatabaseService _db;
+    private readonly LocalizationService _loc = LocalizationService.Instance;
     private System.Timers.Timer _timer;
     private DateTime _startTime;
 
@@ -87,7 +90,10 @@ public partial class SessionViewModel : ObservableObject
         await _db.UpdateUserProgressAsync(progress);
 
         MainThread.BeginInvokeOnMainThread(async () => {
-             await Shell.Current.DisplayAlertAsync("Session Complete", $"You lasted {TimerText}. Progress saved.", "OK");
+             await Shell.Current.DisplayAlertAsync(
+                 _loc.GetString("Alert_SessionCompleteTitle"),
+                 _loc.GetString("Alert_SessionCompleteMessage", TimerText),
+                 _loc.GetString("OK"));
              await Shell.Current.GoToAsync("..");
         });
     }

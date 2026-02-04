@@ -1,9 +1,12 @@
+using LearnToShame.Services;
+
 namespace LearnToShame.ViewModels;
 
 public partial class ShopViewModel : ObservableObject
 {
     private readonly GamificationService _game;
     private readonly DatabaseService _db;
+    private readonly LocalizationService _loc = LocalizationService.Instance;
 
     [ObservableProperty]
     private int _points;
@@ -32,7 +35,11 @@ public partial class ShopViewModel : ObservableObject
         int cost = 100;
         if (await _game.CanBuySessionAsync(cost))
         {
-            bool confirm = await Shell.Current.DisplayAlertAsync("Shop", $"Buy training session for {cost} points?", "Buy", "Cancel");
+            bool confirm = await Shell.Current.DisplayAlertAsync(
+                _loc.GetString("Alert_ShopTitle"),
+                _loc.GetString("Alert_BuyMessage", cost),
+                _loc.GetString("Buy"),
+                _loc.GetString("Cancel"));
             if (confirm)
             {
                 await _game.PurchaseSessionAsync(cost);
@@ -42,7 +49,7 @@ public partial class ShopViewModel : ObservableObject
         }
         else
         {
-            await Shell.Current.DisplayAlertAsync("Shop", "Not enough points! Complete more roadmap tasks.", "OK");
+            await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("Alert_NotEnoughPoints"), _loc.GetString("OK"));
         }
     }
 }

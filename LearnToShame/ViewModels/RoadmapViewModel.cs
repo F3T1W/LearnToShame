@@ -1,9 +1,12 @@
+using LearnToShame.Services;
+
 namespace LearnToShame.ViewModels;
 
 public partial class RoadmapViewModel : ObservableObject
 {
     private readonly DatabaseService _db;
     private readonly GamificationService _game;
+    private readonly LocalizationService _loc = LocalizationService.Instance;
     private List<RoadmapTask> _allTasks = new();
 
     public static readonly int[] PageSizeOptions = { 10, 25, 50 };
@@ -34,7 +37,7 @@ public partial class RoadmapViewModel : ObservableObject
         ApplyPageSize();
     }
 
-    public string PageInfo => $"Page {CurrentPage} of {TotalPages}";
+    public string PageInfo => _loc.GetString("PageOf", CurrentPage, TotalPages);
     public bool CanGoPrev => CurrentPage > 1;
     public bool CanGoNext => CurrentPage < TotalPages;
 
@@ -42,12 +45,26 @@ public partial class RoadmapViewModel : ObservableObject
     {
         _db = db;
         _game = game;
+        _loc.CultureChanged += (_, _) =>
+        {
+            RefreshLocalizedProps();
+        };
+    }
+
+    private void RefreshLocalizedProps()
+    {
+        if (UserProgress != null)
+            CurrentLevelName = _loc.GetString("Level_" + UserProgress.CurrentLevel);
+        OnPropertyChanged(nameof(PageInfo));
+        // Force list refresh so Reward format converter re-runs
+        var list = TasksOnCurrentPage.ToList();
+        TasksOnCurrentPage = new ObservableCollection<RoadmapTask>(list);
     }
 
     public async Task InitializeAsync()
     {
         UserProgress = await _db.GetUserProgressAsync();
-        CurrentLevelName = UserProgress.CurrentLevel.ToString();
+        CurrentLevelName = _loc.GetString("Level_" + UserProgress.CurrentLevel);
         
         _allTasks = await _db.GetTasksAsync();
         ApplyPageSize();
@@ -129,7 +146,11 @@ public partial class RoadmapViewModel : ObservableObject
     {
         if (task.IsCompleted) return; // Already done
 
-        bool confirm = await Shell.Current.DisplayAlertAsync("Complete Task", $"Mark '{task.Title}' as complete for {task.PointsReward} points?", "Yes", "No");
+        bool confirm = await Shell.Current.DisplayAlertAsync(
+            _loc.GetString("Alert_CompleteTaskTitle"),
+            _loc.GetString("Alert_CompleteTaskMessage", task.Title, task.PointsReward),
+            _loc.GetString("Yes"),
+            _loc.GetString("No"));
         if (confirm)
         {
             await _game.CompleteTaskAsync(task);

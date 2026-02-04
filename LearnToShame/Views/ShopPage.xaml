@@ -5,15 +5,15 @@
              xmlns:helpers="clr-namespace:LearnToShame.Helpers"
              x:DataType="vm:ShopViewModel"
              x:Class="LearnToShame.Views.ShopPage"
-             Title="Points Shop">
+             Title="{Binding Source={StaticResource L}, Path=PointsShop}">
 
     <VerticalStackLayout Spacing="28" Padding="48" VerticalOptions="Center">
-        <Label Text="Your Points" HorizontalOptions="Center" FontSize="26"/>
+        <Label Text="{Binding Source={StaticResource L}, Path=YourPoints}" HorizontalOptions="Center" FontSize="26"/>
         <Label Text="{Binding Points}" FontSize="72" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
         
-        <Button Text="Buy Training Session (100 pts)" 
+        <Button Text="{Binding Source={StaticResource L}, Path=BuySessionButton}" 
                 Command="{Binding BuySessionCommand}"
-                HorizontalOptions="Start"
+                HorizontalOptions="Center"
                 HeightRequest="64"
                 Margin="0,40,0,0">
             <Button.Behaviors>
@@ -21,7 +21,7 @@
             </Button.Behaviors>
         </Button>
                 
-        <Label Text="Sessions help you train your endurance." 
+        <Label Text="{Binding Source={StaticResource L}, Path=SessionsHelp}" 
                HorizontalOptions="Center" 
                TextColor="Gray"
                FontSize="20"/>
