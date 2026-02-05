@@ -45,13 +45,13 @@
             <VerticalStackLayout BindableLayout.ItemsSource="{Binding TasksOnCurrentPage}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="model:RoadmapTask">
-                        <Frame Margin="0,8" Padding="20" CornerRadius="14">
+                        <Frame Margin="0,8" Padding="20" CornerRadius="14" BackgroundColor="{StaticResource Primary}">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RoadmapViewModel}}, Path=ToggleTaskCommand}" CommandParameter="{Binding .}"/>
                             </Frame.GestureRecognizers>
                             <Grid ColumnDefinitions="*, Auto">
                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                    <Label FontAttributes="Bold" FontSize="22">
+                                    <Label FontAttributes="Bold" FontSize="22" TextColor="White">
                                         <Label.Text>
                                             <MultiBinding Converter="{StaticResource TaskTextMultiConverter}" ConverterParameter="Title">
                                                 <Binding Path="." />
@@ -59,7 +59,7 @@
                                             </MultiBinding>
                                         </Label.Text>
                                     </Label>
-                                    <Label FontSize="18" TextColor="Gray">
+                                    <Label FontSize="18" TextColor="{StaticResource Secondary}">
                                         <Label.Text>
                                             <MultiBinding Converter="{StaticResource TaskTextMultiConverter}" ConverterParameter="Description">
                                                 <Binding Path="." />
@@ -67,7 +67,7 @@
                                             </MultiBinding>
                                         </Label.Text>
                                     </Label>
-                                    <Label FontSize="17" TextColor="{StaticResource Primary}">
+                                    <Label FontSize="17" TextColor="White">
                                         <Label.Text>
                                             <MultiBinding Converter="{StaticResource RewardFormatMultiConverter}">
                                                 <Binding Path="PointsReward" />

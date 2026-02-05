@@ -8,18 +8,26 @@
              Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="Auto, *, Auto">
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="12,8" ColumnSpacing="8"
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="12,8" ColumnSpacing="8"
               BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}">
-            <BoxView Grid.Column="0" Color="Transparent"/>
-            <Button Grid.Column="1" x:Name="LanguageButton" Text="🌐" FontSize="24"
+            <Button Grid.Column="0" x:Name="LanguageButton" Text="🌐" FontSize="24"
                     BackgroundColor="Transparent" Padding="12" MinimumWidthRequest="48" MinimumHeightRequest="44"
                     Clicked="OnLanguageClicked">
                 <Button.Behaviors>
                     <helpers:ButtonPressAnimationBehavior />
                 </Button.Behaviors>
             </Button>
+            <BoxView Grid.Column="1" Color="Transparent"/>
+            <Button Grid.Column="2" x:Name="ThemeButton" Text="🌙" FontSize="24"
+                    BackgroundColor="Transparent" Padding="12" MinimumWidthRequest="48" MinimumHeightRequest="44"
+                    Clicked="OnThemeClicked">
+                <Button.Behaviors>
+                    <helpers:ButtonPressAnimationBehavior />
+                </Button.Behaviors>
+            </Button>
         </Grid>
-        <ContentView x:Name="PartContent" Grid.Row="1"/>
+        <ContentView x:Name="PartContent" Grid.Row="1"
+                     BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#0d0d0d}"/>
         
         <Grid Grid.Row="2" ColumnDefinitions="*, *" HeightRequest="56" 
               BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}" 

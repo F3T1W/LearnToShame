@@ -8,6 +8,18 @@ public partial class App : Application
 	{
 		InitializeComponent();
 		Resources["L"] = LocalizedStrings.Instance;
+		ApplySavedTheme();
+	}
+
+	private static void ApplySavedTheme()
+	{
+		var saved = Preferences.Default.Get("AppTheme", "System");
+		Application.Current!.UserAppTheme = saved switch
+		{
+			"Dark" => AppTheme.Dark,
+			"Light" => AppTheme.Light,
+			_ => AppTheme.Unspecified
+		};
 	}
 
     protected override Window CreateWindow(IActivationState? activationState)
