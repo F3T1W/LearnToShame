@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:LearnToShame.Views"
              xmlns:helpers="clr-namespace:LearnToShame.Helpers"
-             x:Class="LearnToShame.Views.MainHostPage"
-             Title="{Binding Source={StaticResource L}, Path=AppName}"
+             x:Class="LearnToShame.Views.RoadmapHostPage"
+             Title="{Binding Source={StaticResource L}, Path=Roadmap}"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto, *, Auto">
+    <Grid RowDefinitions="Auto, *">
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="12,8" ColumnSpacing="8"
               BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}">
             <Button Grid.Column="0" x:Name="LanguageButton" Text="🌐" FontSize="24"
@@ -17,7 +16,8 @@
                     <helpers:ButtonPressAnimationBehavior />
                 </Button.Behaviors>
             </Button>
-            <Label x:Name="TopBarTitleLabel" Grid.Column="1" FontSize="18" FontAttributes="Bold"
+            <Label Grid.Column="1" Text="{Binding Source={StaticResource L}, Path=Roadmap}"
+                   FontSize="18" FontAttributes="Bold"
                    HorizontalOptions="Center" VerticalOptions="Center"
                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                    TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"/>
@@ -31,28 +31,5 @@
         </Grid>
         <ContentView x:Name="PartContent" Grid.Row="1"
                      BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#0d0d0d}"/>
-        
-        <Grid Grid.Row="2" ColumnDefinitions="*, *" HeightRequest="64" 
-              BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}" 
-              Padding="12,8" ColumnSpacing="8">
-            <Border x:Name="RoadmapTabBorder" Grid.Column="0" 
-                    HorizontalOptions="Fill" VerticalOptions="Fill"
-                    Padding="12,6" StrokeThickness="0">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24"/>
-                </Border.StrokeShape>
-                <Image x:Name="RoadmapTabIcon" Source="icon_map" WidthRequest="26" HeightRequest="26"
-                       HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Border>
-            <Border x:Name="ShopTabBorder" Grid.Column="1"
-                    HorizontalOptions="Fill" VerticalOptions="Fill"
-                    Padding="12,6" StrokeThickness="0">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24"/>
-                </Border.StrokeShape>
-                <Image x:Name="ShopTabIcon" Source="icon_cart" WidthRequest="26" HeightRequest="26"
-                       HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Border>
-        </Grid>
     </Grid>
 </ContentPage>

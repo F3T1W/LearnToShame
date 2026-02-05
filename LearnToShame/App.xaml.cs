@@ -1,9 +1,14 @@
 using LearnToShame.Helpers;
+using LearnToShame.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LearnToShame;
 
 public partial class App : Application
 {
+	public static IServiceProvider? Services { get; private set; }
+	internal static void SetServices(IServiceProvider serviceProvider) => Services = serviceProvider;
+
 	public App()
 	{
 		InitializeComponent();
@@ -24,6 +29,16 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(new AppShell());
+        var roadmapPage = Services!.GetRequiredService<RoadmapPage>();
+        var shopPage = Services!.GetRequiredService<ShopPage>();
+
+        if (DeviceInfo.Platform == DevicePlatform.iOS)
+        {
+            var roadmapHost = new RoadmapHostPage(roadmapPage);
+            var shopHost = new ShopHostPage(shopPage);
+            return new Window(new AppShellIOS(roadmapHost, shopHost));
+        }
+        var mainHost = new MainHostPage(roadmapPage, shopPage);
+        return new Window(new AppShell(mainHost));
     }
 }

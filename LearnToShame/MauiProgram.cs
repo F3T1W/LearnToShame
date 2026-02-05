@@ -33,7 +33,16 @@ public static class MauiProgram
 		builder.Services.AddTransient<SessionPage>();
 
 		builder.Services.AddTransient<MainHostPage>();
+		builder.Services.AddTransient<RoadmapHostPage>();
+		builder.Services.AddTransient<ShopHostPage>();
 
-		return builder.Build();
+		builder.ConfigureMauiHandlers(handlers =>
+		{
+			handlers.AddHandler<LearnToShame.Views.SfSymbolView, LearnToShame.Handlers.SfSymbolViewHandler>();
+		});
+
+		var app = builder.Build();
+		App.SetServices(app.Services);
+		return app;
 	}
 }

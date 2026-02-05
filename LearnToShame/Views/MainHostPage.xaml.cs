@@ -1,3 +1,4 @@
+using LearnToShame.Helpers;
 using LearnToShame.Services;
 
 namespace LearnToShame.Views;
@@ -15,8 +16,20 @@ public partial class MainHostPage : ContentPage
         _roadmapPage = roadmapPage;
         _shopPage = shopPage;
 
-        RoadmapTab.Clicked += (_, _) => ShowRoadmap();
-        ShopTab.Clicked += (_, _) => ShowShop();
+        LocalizationService.Instance.CultureChanged += (_, _) => UpdateTopBarTitle();
+
+        var roadmapTap = new TapGestureRecognizer();
+        roadmapTap.Tapped += (_, _) => ShowRoadmap();
+        RoadmapTabBorder.GestureRecognizers.Add(roadmapTap);
+
+        var shopTap = new TapGestureRecognizer();
+        shopTap.Tapped += (_, _) => ShowShop();
+        ShopTabBorder.GestureRecognizers.Add(shopTap);
+    }
+
+    private void UpdateTopBarTitle()
+    {
+        TopBarTitleLabel.Text = _showRoadmap ? LocalizedStrings.Instance.Roadmap : LocalizedStrings.Instance.Shop;
     }
 
     private async void OnLanguageClicked(object? sender, EventArgs e)
@@ -39,12 +52,14 @@ public partial class MainHostPage : ContentPage
     {
         base.OnAppearing();
         UpdateThemeButtonIcon();
+        UpdateTabIcons();
         if (PartContent.Content == null)
         {
             PartContent.Content = _roadmapPage.Content;
             PartContent.BindingContext = _roadmapPage.BindingContext;
             SetTabColors(activeRoadmap: true);
             _showRoadmap = true;
+            UpdateTopBarTitle();
             _ = LoadRoadmapIfNeededAsync();
         }
     }
@@ -52,6 +67,13 @@ public partial class MainHostPage : ContentPage
     private void UpdateThemeButtonIcon()
     {
         ThemeButton.Text = Application.Current!.RequestedTheme == AppTheme.Dark ? "☀" : "🌙";
+    }
+
+    private void UpdateTabIcons()
+    {
+        var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
+        RoadmapTabIcon.Source = isDark ? "icon_map_white" : "icon_map";
+        ShopTabIcon.Source = isDark ? "icon_cart_white" : "icon_cart";
     }
 
     private async void OnThemeClicked(object? sender, EventArgs e)
@@ -78,17 +100,21 @@ public partial class MainHostPage : ContentPage
             Application.Current!.UserAppTheme = AppTheme.Unspecified;
         }
         UpdateThemeButtonIcon();
+        UpdateTabIcons();
         SetTabColors(_showRoadmap);
     }
 
-    private void ShowRoadmap()
+    private async void ShowRoadmap()
     {
         if (!_showRoadmap)
         {
             _showRoadmap = true;
+            await PartContent.FadeTo(0, 150, Easing.CubicOut);
             PartContent.Content = _roadmapPage.Content;
             PartContent.BindingContext = _roadmapPage.BindingContext;
             SetTabColors(activeRoadmap: true);
+            UpdateTopBarTitle();
+            await PartContent.FadeTo(1, 200, Easing.CubicIn);
             _ = LoadRoadmapIfNeededAsync();
         }
     }
@@ -104,25 +130,31 @@ public partial class MainHostPage : ContentPage
         }
     }
 
-    private void ShowShop()
+    private async void ShowShop()
     {
         if (_showRoadmap)
         {
             _showRoadmap = false;
+            await PartContent.FadeTo(0, 150, Easing.CubicOut);
             PartContent.Content = _shopPage.Content;
             PartContent.BindingContext = _shopPage.BindingContext;
             SetTabColors(activeRoadmap: false);
+            UpdateTopBarTitle();
+            await PartContent.FadeTo(1, 200, Easing.CubicIn);
             _ = (_shopPage.BindingContext as ViewModels.ShopViewModel)?.InitializeAsync();
         }
     }
 
     private void SetTabColors(bool activeRoadmap)
     {
-        var primary = (Color)Application.Current!.Resources["Primary"];
-        var inactive = Application.Current.RequestedTheme == AppTheme.Dark
-            ? (Color)Application.Current.Resources["White"]
-            : (Color)Application.Current.Resources["Black"];
-        RoadmapTab.TextColor = activeRoadmap ? primary : inactive;
-        ShopTab.TextColor = activeRoadmap ? inactive : primary;
+        var primarySubtle = ((Color)Application.Current!.Resources["Primary"]).WithAlpha(0.2f);
+
+        RoadmapTabBorder.Background = activeRoadmap
+            ? new SolidColorBrush(primarySubtle)
+            : new SolidColorBrush(Colors.Transparent);
+        ShopTabBorder.Background = activeRoadmap
+            ? new SolidColorBrush(Colors.Transparent)
+            : new SolidColorBrush(primarySubtle);
     }
 }
+
