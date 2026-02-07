@@ -12,19 +12,17 @@ A MAUI application for programmer motivation and "endurance" training.
 
 - **Roadmap**: Track your developer journey from Intern to Lead.
 - **Shop**: Earn points by completing tasks and buy training sessions.
-- **Training Session**: Test your endurance with content from Reddit (r/PrejacLevelTraining), filtered by your developer level.
-- **Reddit Integration**: Fetches images based on level flairs.
+- **Training Session**: Test your endurance with your own images. No download from the internet — you choose images from the device.
+- **Content**: In Shop, tap «Choose images from device» to pick image files; they are saved and used in training sessions.
 
 ## Architecture
 
 - **MVVM**: Used throughout with CommunityToolkit.Mvvm.
 - **SQLite**: Local data persistence.
 - **MAUI**: Cross-platform UI.
+- **User content**: Images are selected via the system file picker and stored in app data; no Reddit/Pinterest or any network download.
 
 ## Notes
-
-- The Reddit API integration uses public JSON endpoints for simplicity.
-- Ensure you have internet access for fetching Reddit content.
 
 ### Консоль при запуске на iOS
 

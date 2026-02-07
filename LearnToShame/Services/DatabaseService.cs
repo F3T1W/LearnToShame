@@ -21,7 +21,9 @@ public class DatabaseService
         await _database.CreateTableAsync<UserProgress>();
         await _database.CreateTableAsync<RoadmapTask>();
         await _database.CreateTableAsync<TrainingSession>();
-        
+
+        await MigrateUserProgressContentLevelAsync();
+
         // Seed initial data if needed
         var progress = await _database.Table<UserProgress>().FirstOrDefaultAsync();
         if (progress == null)
@@ -29,6 +31,31 @@ public class DatabaseService
             await _database.InsertAsync(new UserProgress());
             await SeedTasks();
         }
+    }
+
+    private async Task MigrateUserProgressContentLevelAsync()
+    {
+        if (_database is null) return;
+        try
+        {
+            await _database.ExecuteAsync("ALTER TABLE UserProgress ADD COLUMN ContentLevel INTEGER DEFAULT 1");
+        }
+        catch { /* column already exists */ }
+        try
+        {
+            await _database.ExecuteAsync("ALTER TABLE UserProgress ADD COLUMN FastSessionsInRow INTEGER DEFAULT 0");
+        }
+        catch { /* column already exists */ }
+
+        try
+        {
+            await _database.ExecuteAsync("ALTER TABLE TrainingSession ADD COLUMN ContentLevel INTEGER DEFAULT 1");
+        }
+        catch { /* column already exists */ }
+
+        // Заполнить дефолты для существующих строк (SQLite оставляет NULL в новых столбцах)
+        await _database.ExecuteAsync("UPDATE UserProgress SET ContentLevel = 1 WHERE ContentLevel IS NULL OR ContentLevel < 1");
+        await _database.ExecuteAsync("UPDATE UserProgress SET FastSessionsInRow = 0 WHERE FastSessionsInRow IS NULL");
     }
 
     private async Task SeedTasks()

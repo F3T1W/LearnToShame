@@ -15,12 +15,23 @@
                 Command="{Binding BuySessionCommand}"
                 HorizontalOptions="Center"
                 HeightRequest="64"
-                Margin="0,40,0,0">
+                Margin="0,24,0,0">
             <Button.Behaviors>
                 <helpers:ButtonPressAnimationBehavior />
             </Button.Behaviors>
         </Button>
-                
+
+        <Button Text="{Binding Source={StaticResource L}, Path=PickContent}"
+                Command="{Binding PickImagesCommand}"
+                HorizontalOptions="Center"
+                HeightRequest="48"
+                Margin="0,16,0,0">
+            <Button.Behaviors>
+                <helpers:ButtonPressAnimationBehavior />
+            </Button.Behaviors>
+        </Button>
+        <Label Text="{Binding ContentStatusText}" HorizontalOptions="Center" FontSize="14" TextColor="Gray"/>
+
         <Label Text="{Binding Source={StaticResource L}, Path=SessionsHelp}" 
                HorizontalOptions="Center" 
                TextColor="Gray"

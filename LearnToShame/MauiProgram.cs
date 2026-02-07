@@ -20,7 +20,7 @@ public static class MauiProgram
 #endif
 
 		builder.Services.AddSingleton<DatabaseService>();
-        builder.Services.AddSingleton<RedditService>();
+        builder.Services.AddSingleton<UserContentService>();
         builder.Services.AddSingleton<GamificationService>();
 
 		builder.Services.AddTransient<RoadmapViewModel>();
@@ -39,6 +39,7 @@ public static class MauiProgram
 		builder.ConfigureMauiHandlers(handlers =>
 		{
 			handlers.AddHandler<LearnToShame.Views.SfSymbolView, LearnToShame.Handlers.SfSymbolViewHandler>();
+			handlers.AddHandler<LearnToShame.Views.KeyCaptureView, LearnToShame.Handlers.KeyCaptureViewHandler>();
 		});
 
 		var app = builder.Build();

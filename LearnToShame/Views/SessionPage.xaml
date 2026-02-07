@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:LearnToShame.ViewModels"
              xmlns:helpers="clr-namespace:LearnToShame.Helpers"
+             xmlns:views="clr-namespace:LearnToShame.Views"
              x:DataType="vm:SessionViewModel"
              x:Class="LearnToShame.Views.SessionPage"
              Title="{Binding Source={StaticResource L}, Path=TrainingSession}"
@@ -13,13 +14,24 @@
             <Label Text="{Binding TimerText}" TextColor="Red" FontSize="48" HorizontalOptions="Center" FontAttributes="Bold"/>
         </VerticalStackLayout>
         
-        <CarouselView Grid.Row="1" ItemsSource="{Binding Images}" Loop="False">
-            <CarouselView.ItemTemplate>
-                <DataTemplate>
-                    <Image Source="{Binding .}" Aspect="AspectFit" BackgroundColor="Black"/>
-                </DataTemplate>
-            </CarouselView.ItemTemplate>
-        </CarouselView>
+        <Grid Grid.Row="1" RowDefinitions="*, Auto" ColumnDefinitions="Auto, *, Auto" BackgroundColor="Black" Padding="8">
+            <Button Grid.Row="0" Grid.Column="0" Text="‹" Command="{Binding PrevImageCommand}" IsVisible="{Binding HasMultipleImages}"
+                    BackgroundColor="Transparent" TextColor="White" FontSize="48" WidthRequest="56" VerticalOptions="Center"/>
+            <Grid Grid.Row="0" Grid.Column="1" BackgroundColor="Black">
+                <Image Source="{Binding CurrentImage}" Aspect="AspectFit" BackgroundColor="Black">
+                    <Image.GestureRecognizers>
+                        <SwipeGestureRecognizer Direction="Right" Command="{Binding PrevImageCommand}"/>
+                        <SwipeGestureRecognizer Direction="Left" Command="{Binding NextImageCommand}"/>
+                    </Image.GestureRecognizers>
+                </Image>
+                <views:KeyCaptureView PrevCommand="{Binding PrevImageCommand}" NextCommand="{Binding NextImageCommand}"
+                                     HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True"/>
+            </Grid>
+            <Button Grid.Row="0" Grid.Column="2" Text="›" Command="{Binding NextImageCommand}" IsVisible="{Binding HasMultipleImages}"
+                    BackgroundColor="Transparent" TextColor="White" FontSize="48" WidthRequest="56" VerticalOptions="Center"/>
+            <Label Grid.Row="1" Grid.ColumnSpan="3" Text="‹ ›  или  A/D (EN) / ф/в (RU)  или свайп" IsVisible="{Binding HasMultipleImages}"
+                   TextColor="#88ffffff" FontSize="12" HorizontalOptions="Center" Margin="0,8,0,0"/>
+        </Grid>
         
         <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" Color="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="80" HeightRequest="80"/>
         

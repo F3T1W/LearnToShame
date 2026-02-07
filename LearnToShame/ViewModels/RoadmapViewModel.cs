@@ -63,12 +63,18 @@ public partial class RoadmapViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        UserProgress = await _db.GetUserProgressAsync();
-        CurrentLevelName = _loc.GetString("Level_" + UserProgress.CurrentLevel);
-        
-        _allTasks = await _db.GetTasksAsync();
-        ApplyPageSize();
-        CalculateTotalProgress();
+        try
+        {
+            UserProgress = await _db.GetUserProgressAsync();
+            CurrentLevelName = _loc.GetString("Level_" + UserProgress.CurrentLevel);
+            _allTasks = await _db.GetTasksAsync();
+            ApplyPageSize();
+            CalculateTotalProgress();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"RoadmapViewModel.InitializeAsync: {ex.Message}");
+        }
     }
 
     private void ApplyPageSize()

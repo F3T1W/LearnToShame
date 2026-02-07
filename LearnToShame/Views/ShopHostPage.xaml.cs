@@ -31,7 +31,7 @@ public partial class ShopHostPage : ContentPage
         var langs = LocalizationService.Languages;
         var names = langs.Select(x => x.DisplayName).ToArray();
         var cancelText = LocalizationService.Instance.GetString("CancelButton");
-        var action = await DisplayActionSheet(
+        var action = await DisplayActionSheetAsync(
             LocalizationService.Instance.GetString("Language"),
             cancelText,
             null,
@@ -46,7 +46,7 @@ public partial class ShopHostPage : ContentPage
     {
         var loc = LocalizationService.Instance;
         var options = new[] { loc.GetString("Theme_Dark"), loc.GetString("Theme_Light"), loc.GetString("Theme_System") };
-        var action = await DisplayActionSheet(loc.GetString("Theme"), loc.GetString("CancelButton"), null, options);
+        var action = await DisplayActionSheetAsync(loc.GetString("Theme"), loc.GetString("CancelButton"), null, options);
         if (action == null || action == loc.GetString("CancelButton")) return;
         if (action == loc.GetString("Theme_Dark"))
         {

@@ -76,7 +76,7 @@
                                         </Label.Text>
                                     </Label>
                                 </VerticalStackLayout>
-                                <CheckBox Grid.Column="1" IsChecked="{Binding IsCompleted}" IsEnabled="False" Scale="1.4"/>
+                                <CheckBox Grid.Column="1" IsChecked="{Binding IsCompleted}" IsEnabled="False" Scale="1.4" InputTransparent="True"/>
                             </Grid>
                         </Frame>
                     </DataTemplate>

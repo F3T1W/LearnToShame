@@ -6,21 +6,51 @@ public partial class ShopViewModel : ObservableObject
 {
     private readonly GamificationService _game;
     private readonly DatabaseService _db;
+    private readonly UserContentService _userContent;
     private readonly LocalizationService _loc = LocalizationService.Instance;
 
     [ObservableProperty]
     private int _points;
 
-    public ShopViewModel(GamificationService game, DatabaseService db)
+    [ObservableProperty]
+    private string _contentStatusText = "";
+
+    public ShopViewModel(GamificationService game, DatabaseService db, UserContentService userContent)
     {
         _game = game;
         _db = db;
+        _userContent = userContent;
     }
 
     public async Task InitializeAsync()
     {
-        var progress = await _db.GetUserProgressAsync();
-        Points = progress.CurrentPoints;
+        try
+        {
+            var progress = await _db.GetUserProgressAsync();
+            Points = progress.CurrentPoints;
+            UpdateContentStatus();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"ShopViewModel.InitializeAsync: {ex.Message}");
+            Points = 0;
+            UpdateContentStatus();
+        }
+    }
+
+    private void UpdateContentStatus()
+    {
+        var count = _userContent.Count;
+        ContentStatusText = _loc.GetString("SelectedImagesCount", count);
+    }
+
+    [RelayCommand]
+    private async Task PickImagesAsync()
+    {
+        var added = await _userContent.PickAndSaveImagesAsync();
+        UpdateContentStatus();
+        if (added > 0)
+            await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("ImagesAdded", added), _loc.GetString("OK"));
     }
 
     [RelayCommand]
@@ -43,8 +73,11 @@ public partial class ShopViewModel : ObservableObject
             if (confirm)
             {
                 await _game.PurchaseSessionAsync(cost);
-                await InitializeAsync();
-                await Shell.Current.GoToAsync(nameof(SessionPage));
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await InitializeAsync();
+                    await Shell.Current.GoToAsync(nameof(SessionPage));
+                });
             }
         }
         else

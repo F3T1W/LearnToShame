@@ -39,6 +39,7 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string Buy => _loc.GetString("Buy");
     public string Cancel => _loc.GetString("Cancel");
     public string OK => _loc.GetString("OK");
+    public string PickContent => _loc.GetString("PickContent");
 
     public string RewardPtsFormat => _loc.GetString("RewardPts");
     public string PageOfFormat => _loc.GetString("PageOf");
