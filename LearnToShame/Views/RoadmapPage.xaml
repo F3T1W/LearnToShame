@@ -20,6 +20,18 @@
             
             <Label Text="{Binding Source={StaticResource L}, Path=Tasks}" FontSize="28" FontAttributes="Bold" Margin="0,16"/>
 
+            <Button Text="{Binding Source={StaticResource L}, Path=ResetCompletedTasksButton}"
+                    Command="{Binding ResetCompletedTasksCommand}"
+                    HorizontalOptions="Start"
+                    Padding="16,10" MinimumHeightRequest="44"
+                    BackgroundColor="{AppThemeBinding Light=#E8E8E8, Dark=#3a3a3a}"
+                    TextColor="{AppThemeBinding Light=#333, Dark=#ccc}"
+                    Margin="0,0,0,16">
+                <Button.Behaviors>
+                    <helpers:ButtonPressAnimationBehavior />
+                </Button.Behaviors>
+            </Button>
+
             <Label Text="{Binding Source={StaticResource L}, Path=ShowPerPage}" FontSize="18" Margin="0,0,0,8"/>
             <HorizontalStackLayout Spacing="12" Margin="0,0,0,16">
                 <Button Text="10" Command="{Binding SetPageSizeCommand}" CommandParameter="10"

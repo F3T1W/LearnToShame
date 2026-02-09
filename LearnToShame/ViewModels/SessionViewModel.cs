@@ -12,20 +12,21 @@ public partial class SessionViewModel : ObservableObject
     private readonly LocalizationService _loc = LocalizationService.Instance;
     private System.Timers.Timer _timer;
     private DateTime _startTime;
+    private DateTime _triggerSwitchTime; // когда нажали Switch to Trigger
+    private List<ImageSource> _triggerImageSources = new();
 
     [ObservableProperty]
     private ObservableCollection<ImageSource> _images = new();
 
     [ObservableProperty]
     private string _timerText = "00:00";
-    
+
     [ObservableProperty]
     private bool _isSessionActive;
 
     [ObservableProperty]
     private bool _isLoading;
 
-    /// <summary>Текущее фото в сессии (один Image на Mac вместо сломанной CarouselView).</summary>
     [ObservableProperty]
     private ImageSource? _currentImage;
 
@@ -34,6 +35,10 @@ public partial class SessionViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _hasMultipleImages;
+
+    /// <summary>True = показываем Pre-Trigger, false = показываем Trigger (перед оргазмом).</summary>
+    [ObservableProperty]
+    private bool _isPreTriggerPhase = true;
 
     public SessionViewModel(DatabaseService db, UserContentService userContent)
     {
@@ -56,68 +61,77 @@ public partial class SessionViewModel : ObservableObject
         {
             IsLoading = true;
             IsSessionActive = true;
+            IsPreTriggerPhase = true;
             Images.Clear();
+            _triggerImageSources.Clear();
         });
 
-        var paths = _userContent.GetUserImagePaths();
-        Debug.WriteLine($"[Session] GetUserImagePaths: count={paths.Count}");
-        for (var i = 0; i < paths.Count; i++)
-            Debug.WriteLine($"[Session]   [{i}] {paths[i]}");
-        if (paths.Count == 0)
+        var prePaths = _userContent.GetPreTriggerPaths();
+        var triggerPaths = _userContent.GetTriggerPaths();
+        if (prePaths.Count == 0 || triggerPaths.Count == 0)
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 IsLoading = false;
-                await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("NoImagesHint"), _loc.GetString("OK"));
+                await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("NeedBothPreAndTrigger"), _loc.GetString("OK"));
             });
             return;
         }
 
         var rnd = new Random();
-        var selectedPaths = PickRandomInRandomOrder(paths, ImagesPerSession, rnd);
-        Debug.WriteLine($"[Session] Selected for session: {selectedPaths.Count} paths");
-        for (var i = 0; i < selectedPaths.Count; i++)
-            Debug.WriteLine($"[Session]   selected[{i}] {selectedPaths[i]}");
-
-        // На Mac Catalyst FromFile часто не отображает изображения — загружаем через поток.
-        var imageSources = new List<ImageSource>();
-        for (var idx = 0; idx < selectedPaths.Count; idx++)
-        {
-            var path = selectedPaths[idx];
-            var exists = File.Exists(path);
-            Debug.WriteLine($"[Session] Load [{idx}] path={path} exists={exists}");
-            try
-            {
-                var bytes = await Task.Run(() => File.ReadAllBytes(path));
-                Debug.WriteLine($"[Session] Load [{idx}] read OK, bytes={bytes?.Length ?? 0}");
-                var captured = bytes;
-                imageSources.Add(ImageSource.FromStream(() => new MemoryStream(captured)));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Session] Load [{idx}] FAILED: {ex.Message}");
-            }
-        }
-        Debug.WriteLine($"[Session] imageSources count={imageSources.Count}, adding to Images on main thread");
+        var selectedPre = PickRandomInRandomOrder(prePaths, ImagesPerSession, rnd);
+        _triggerImageSources = await LoadImageSourcesAsync(triggerPaths);
+        var preSources = await LoadImageSourcesAsync(selectedPre);
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            foreach (var src in imageSources)
+            Images.Clear();
+            foreach (var src in preSources)
                 Images.Add(src);
             CurrentImageIndex = 0;
             CurrentImage = Images.Count > 0 ? Images[0] : null;
             HasMultipleImages = Images.Count > 1;
-            Debug.WriteLine($"[Session] Images.Count={Images.Count}");
             IsLoading = false;
             _startTime = DateTime.Now;
             _timer.Start();
         });
     }
 
+    private static async Task<List<ImageSource>> LoadImageSourcesAsync(IList<string> paths)
+    {
+        var list = new List<ImageSource>();
+        foreach (var path in paths)
+        {
+            try
+            {
+                var bytes = await Task.Run(() => File.ReadAllBytes(path));
+                var captured = bytes;
+                list.Add(ImageSource.FromStream(() => new MemoryStream(captured)));
+            }
+            catch { }
+        }
+        return list;
+    }
+
+    [RelayCommand]
+    private void SwitchToTrigger()
+    {
+        if (_triggerImageSources.Count == 0) return;
+        _triggerSwitchTime = DateTime.Now;
+        IsPreTriggerPhase = false;
+        var rnd = new Random();
+        var triggerImage = _triggerImageSources[rnd.Next(_triggerImageSources.Count)];
+        Images.Clear();
+        Images.Add(triggerImage);
+        CurrentImageIndex = 0;
+        CurrentImage = triggerImage;
+        HasMultipleImages = false;
+    }
+
     [RelayCommand]
     private void NextImage()
     {
-        if (Images.Count <= 1) return;
+        if (!IsPreTriggerPhase || Images.Count <= 1) return;
         CurrentImageIndex = (CurrentImageIndex + 1) % Images.Count;
         CurrentImage = Images[CurrentImageIndex];
     }
@@ -125,7 +139,7 @@ public partial class SessionViewModel : ObservableObject
     [RelayCommand]
     private void PrevImage()
     {
-        if (Images.Count <= 1) return;
+        if (!IsPreTriggerPhase || Images.Count <= 1) return;
         CurrentImageIndex = CurrentImageIndex == 0 ? Images.Count - 1 : CurrentImageIndex - 1;
         CurrentImage = Images[CurrentImageIndex];
     }
@@ -149,25 +163,32 @@ public partial class SessionViewModel : ObservableObject
     {
         _timer.Stop();
         IsSessionActive = false;
-        var duration = DateTime.Now - _startTime;
+        var endTime = DateTime.Now;
+        var duration = endTime - _startTime;
         var durationSeconds = duration.TotalSeconds;
+        var triggerPhaseUsed = !IsPreTriggerPhase;
+        var preTriggerSeconds = triggerPhaseUsed ? (_triggerSwitchTime - _startTime).TotalSeconds : durationSeconds;
+        var triggerSeconds = triggerPhaseUsed ? (endTime - _triggerSwitchTime).TotalSeconds : 0.0;
 
         var progress = await _db.GetUserProgressAsync();
         var contentLevel = Math.Clamp(progress.ContentLevel, 1, 8);
 
         var session = new TrainingSession
         {
-            Date = DateTime.Now,
+            Date = endTime,
             DurationSeconds = durationSeconds,
             Level = progress.CurrentLevel,
-            ContentLevel = contentLevel
+            ContentLevel = contentLevel,
+            TriggerPhaseUsed = triggerPhaseUsed,
+            PreTriggerSeconds = preTriggerSeconds,
+            TriggerSeconds = triggerSeconds
         };
         await _db.AddSessionAsync(session);
 
-        // Прогрессия контента (1–8): 5 сессий подряд < 1 мин на одном уровне → переход на уровень выше (более прикрытый контент).
         const double fastThresholdSeconds = 60;
         const int fastSessionsToLevelUp = 5;
-        if (durationSeconds < fastThresholdSeconds)
+        bool fastAndCorrect = triggerPhaseUsed && durationSeconds < fastThresholdSeconds;
+        if (fastAndCorrect)
         {
             progress.FastSessionsInRow++;
             if (progress.FastSessionsInRow >= fastSessionsToLevelUp && progress.ContentLevel < 8)
@@ -183,11 +204,19 @@ public partial class SessionViewModel : ObservableObject
 
         await _db.UpdateUserProgressAsync(progress);
 
+        string message;
+        if (fastAndCorrect)
+            message = _loc.GetString("SessionSuccessMessage", progress.FastSessionsInRow);
+        else if (!triggerPhaseUsed)
+            message = _loc.GetString("SessionRemindTrigger");
+        else
+            message = _loc.GetString("SessionOverTime");
+
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             await Shell.Current.DisplayAlertAsync(
                 _loc.GetString("Alert_SessionCompleteTitle"),
-                _loc.GetString("Alert_SessionCompleteMessage", TimerText),
+                $"{_loc.GetString("Alert_SessionCompleteMessage", TimerText)}\n\n{message}",
                 _loc.GetString("OK"));
             await Shell.Current.GoToAsync("..");
         });

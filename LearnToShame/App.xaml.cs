@@ -31,6 +31,7 @@ public partial class App : Application
     {
         var roadmapPage = Services!.GetRequiredService<RoadmapPage>();
         var shopPage = Services!.GetRequiredService<ShopPage>();
+        var statisticsPage = Services!.GetRequiredService<StatisticsPage>();
 
         if (DeviceInfo.Platform == DevicePlatform.iOS)
         {
@@ -38,7 +39,7 @@ public partial class App : Application
             var shopHost = new ShopHostPage(shopPage);
             return new Window(new AppShellIOS(roadmapHost, shopHost));
         }
-        var mainHost = new MainHostPage(roadmapPage, shopPage);
+        var mainHost = new MainHostPage(roadmapPage, shopPage, statisticsPage);
         return new Window(new AppShell(mainHost));
     }
 }

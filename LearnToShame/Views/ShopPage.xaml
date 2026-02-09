@@ -21,8 +21,8 @@
             </Button.Behaviors>
         </Button>
 
-        <Button Text="{Binding Source={StaticResource L}, Path=PickContent}"
-                Command="{Binding PickImagesCommand}"
+        <Button Text="{Binding Source={StaticResource L}, Path=AddPreTrigger}"
+                Command="{Binding PickPreTriggerCommand}"
                 HorizontalOptions="Center"
                 HeightRequest="48"
                 Margin="0,16,0,0">
@@ -30,7 +30,24 @@
                 <helpers:ButtonPressAnimationBehavior />
             </Button.Behaviors>
         </Button>
+        <Button Text="{Binding Source={StaticResource L}, Path=AddTrigger}"
+                Command="{Binding PickTriggerCommand}"
+                HorizontalOptions="Center"
+                HeightRequest="48"
+                Margin="0,8,0,0">
+            <Button.Behaviors>
+                <helpers:ButtonPressAnimationBehavior />
+            </Button.Behaviors>
+        </Button>
         <Label Text="{Binding ContentStatusText}" HorizontalOptions="Center" FontSize="14" TextColor="Gray"/>
+
+        <Button Text="{Binding Source={StaticResource L}, Path=HowItWorks}"
+                Command="{Binding ShowHowItWorksCommand}"
+                HorizontalOptions="Center"
+                HeightRequest="40"
+                Margin="0,12,0,0"
+                BackgroundColor="Transparent"
+                TextColor="Gray"/>
 
         <Label Text="{Binding Source={StaticResource L}, Path=SessionsHelp}" 
                HorizontalOptions="Center" 

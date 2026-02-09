@@ -32,7 +32,7 @@
         <ContentView x:Name="PartContent" Grid.Row="1"
                      BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#0d0d0d}"/>
         
-        <Grid Grid.Row="2" ColumnDefinitions="*, *" HeightRequest="64" 
+        <Grid Grid.Row="2" ColumnDefinitions="*, *, *" HeightRequest="64" 
               BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2D2D2D}" 
               Padding="12,8" ColumnSpacing="8">
             <Border x:Name="RoadmapTabBorder" Grid.Column="0" 
@@ -51,6 +51,15 @@
                     <RoundRectangle CornerRadius="24"/>
                 </Border.StrokeShape>
                 <Image x:Name="ShopTabIcon" Source="icon_cart" WidthRequest="26" HeightRequest="26"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+            <Border x:Name="StatisticsTabBorder" Grid.Column="2"
+                    HorizontalOptions="Fill" VerticalOptions="Fill"
+                    Padding="12,6" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24"/>
+                </Border.StrokeShape>
+                <Label x:Name="StatisticsTabIcon" Text="📊" FontSize="26"
                        HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
         </Grid>

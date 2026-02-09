@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LearnToShame.Views.InteractiveSessionChartView"
+             x:Name="Root">
+
+    <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+        <GraphicsView x:Name="ChartView" HorizontalOptions="Fill" VerticalOptions="Fill" />
+        <Border x:Name="TooltipBorder" IsVisible="False" Padding="12,8" StrokeThickness="0"
+                BackgroundColor="{AppThemeBinding Light=#EEEEEE, Dark=#333333}"
+                HorizontalOptions="Start" VerticalOptions="Start"
+                MaximumWidthRequest="280">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8"/>
+            </Border.StrokeShape>
+            <Label x:Name="TooltipLabel" FontSize="13" LineBreakMode="WordWrap"
+                   TextColor="{AppThemeBinding Light=#111, Dark=#eee}" />
+        </Border>
+        <Button x:Name="ResetZoomButton"
+                HorizontalOptions="End" VerticalOptions="End" Margin="8"
+                Padding="12,6" FontSize="12" HeightRequest="36"
+                BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#444}"
+                TextColor="{AppThemeBinding Light=#333, Dark=#ccc}"
+                IsVisible="False" />
+    </Grid>
+</ContentView>

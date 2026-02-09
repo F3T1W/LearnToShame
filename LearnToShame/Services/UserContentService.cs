@@ -3,25 +3,38 @@ using System.Text.Json;
 
 namespace LearnToShame.Services;
 
-/// <summary>Контент для сессий — только то, что пользователь сам выбрал с устройства (папка/файлы). Без скачивания с Reddit/Pinterest.</summary>
+/// <summary>Trigger Method: Pre-Trigger (arousal) and Trigger (focus at orgasm). Two separate image lists.</summary>
 public class UserContentService
 {
-    private static readonly string StoragePath = Path.Combine(FileSystem.AppDataDirectory, "user_images.json");
+    private static readonly string PreTriggerPath = Path.Combine(FileSystem.AppDataDirectory, "user_pre_trigger.json");
+    private static readonly string TriggerPath = Path.Combine(FileSystem.AppDataDirectory, "user_trigger.json");
     private static readonly string ImagesDir = Path.Combine(FileSystem.AppDataDirectory, "UserImages");
 
-    /// <summary>Возвращает пути выбранных изображений; только те, по которым файл реально существует.</summary>
-    public List<string> GetUserImagePaths()
+    private static void MigrateLegacyIfNeeded()
     {
+        var legacyPath = Path.Combine(FileSystem.AppDataDirectory, "user_images.json");
+        if (!File.Exists(legacyPath) || File.Exists(PreTriggerPath)) return;
         try
         {
-            if (!File.Exists(StoragePath)) return new List<string>();
-            var json = File.ReadAllText(StoragePath);
+            var json = File.ReadAllText(legacyPath);
+            File.WriteAllText(PreTriggerPath, json);
+            File.Delete(legacyPath);
+        }
+        catch { }
+    }
+
+    private static List<string> LoadAndFilter(string path)
+    {
+        MigrateLegacyIfNeeded();
+        try
+        {
+            if (!File.Exists(path)) return new List<string>();
+            var json = File.ReadAllText(path);
             var list = JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
             var existing = list.Where(p => !string.IsNullOrEmpty(p) && File.Exists(p)).ToList();
-            // Почистить JSON от несуществующих путей, чтобы счётчик и сессии не врали
             if (existing.Count != list.Count)
             {
-                try { File.WriteAllText(StoragePath, JsonSerializer.Serialize(existing)); } catch { /* ignore */ }
+                try { File.WriteAllText(path, JsonSerializer.Serialize(existing)); } catch { }
             }
             return existing;
         }
@@ -31,12 +44,22 @@ public class UserContentService
         }
     }
 
-    /// <summary>Открывает выбор файлов, копирует их в папку приложения и сохраняет пути к копиям.</summary>
-    public async Task<int> PickAndSaveImagesAsync()
+    public List<string> GetPreTriggerPaths() => LoadAndFilter(PreTriggerPath);
+    public List<string> GetTriggerPaths() => LoadAndFilter(TriggerPath);
+
+    /// <summary>Legacy: combined list (Pre + Trigger) for backward compat.</summary>
+    public List<string> GetUserImagePaths()
+    {
+        var pre = GetPreTriggerPaths();
+        var trigger = GetTriggerPaths();
+        return pre.Concat(trigger).Distinct().ToList();
+    }
+
+    public async Task<int> PickAndSaveImagesAsync(ContentRole role)
     {
         var options = new PickOptions
         {
-            PickerTitle = "Select images for training",
+            PickerTitle = role == ContentRole.PreTrigger ? "Select Pre-Trigger images" : "Select Trigger images",
             FileTypes = FilePickerFileType.Images
         };
         var results = await FilePicker.Default.PickMultipleAsync(options);
@@ -61,32 +84,42 @@ public class UserContentService
                     await stream.CopyToAsync(dest);
                 newPaths.Add(destPath);
             }
-            catch
-            {
-                // пропустить файл при ошибке копирования
-            }
+            catch { }
         }
 
         if (newPaths.Count == 0) return 0;
-        // Заменяем список полностью: «выбранные фото» = теперь только то, что только что выбрали
-        File.WriteAllText(StoragePath, JsonSerializer.Serialize(newPaths));
+        var path = role == ContentRole.PreTrigger ? PreTriggerPath : TriggerPath;
+        File.WriteAllText(path, JsonSerializer.Serialize(newPaths));
         return newPaths.Count;
     }
 
-    /// <summary>Очистить сохранённый список и удалить копии изображений.</summary>
+    public void ClearPreTrigger()
+    {
+        if (File.Exists(PreTriggerPath)) File.Delete(PreTriggerPath);
+    }
+
+    public void ClearTrigger()
+    {
+        if (File.Exists(TriggerPath)) File.Delete(TriggerPath);
+    }
+
     public void Clear()
     {
-        if (File.Exists(StoragePath))
-            File.Delete(StoragePath);
+        ClearPreTrigger();
+        ClearTrigger();
         if (Directory.Exists(ImagesDir))
         {
-            try
-            {
-                Directory.Delete(ImagesDir, true);
-            }
-            catch { /* игнорировать */ }
+            try { Directory.Delete(ImagesDir, true); } catch { }
         }
     }
 
-    public int Count => GetUserImagePaths().Count;
+    public int CountPreTrigger => GetPreTriggerPaths().Count;
+    public int CountTrigger => GetTriggerPaths().Count;
+    public int Count => GetPreTriggerPaths().Count + GetTriggerPaths().Count;
+}
+
+public enum ContentRole
+{
+    PreTrigger,
+    Trigger
 }

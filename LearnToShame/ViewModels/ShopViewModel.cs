@@ -40,17 +40,27 @@ public partial class ShopViewModel : ObservableObject
 
     private void UpdateContentStatus()
     {
-        var count = _userContent.Count;
-        ContentStatusText = _loc.GetString("SelectedImagesCount", count);
+        var pre = _userContent.CountPreTrigger;
+        var trig = _userContent.CountTrigger;
+        ContentStatusText = _loc.GetString("ContentStatusTwoLists", pre, trig);
     }
 
     [RelayCommand]
-    private async Task PickImagesAsync()
+    private async Task PickPreTriggerAsync()
     {
-        var added = await _userContent.PickAndSaveImagesAsync();
+        var added = await _userContent.PickAndSaveImagesAsync(ContentRole.PreTrigger);
         UpdateContentStatus();
         if (added > 0)
-            await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("ImagesAdded", added), _loc.GetString("OK"));
+            await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("ImagesAddedPreTrigger", added), _loc.GetString("OK"));
+    }
+
+    [RelayCommand]
+    private async Task PickTriggerAsync()
+    {
+        var added = await _userContent.PickAndSaveImagesAsync(ContentRole.Trigger);
+        UpdateContentStatus();
+        if (added > 0)
+            await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("ImagesAddedTrigger", added), _loc.GetString("OK"));
     }
 
     [RelayCommand]
@@ -60,8 +70,19 @@ public partial class ShopViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ShowHowItWorks()
+    {
+        await Shell.Current.GoToAsync(nameof(TriggerMethodInfoPage));
+    }
+
+    [RelayCommand]
     private async Task BuySession()
     {
+        if (_userContent.CountPreTrigger == 0 || _userContent.CountTrigger == 0)
+        {
+            await Shell.Current.DisplayAlertAsync(_loc.GetString("Alert_ShopTitle"), _loc.GetString("NeedBothPreAndTrigger"), _loc.GetString("OK"));
+            return;
+        }
         int cost = 100;
         if (await _game.CanBuySessionAsync(cost))
         {

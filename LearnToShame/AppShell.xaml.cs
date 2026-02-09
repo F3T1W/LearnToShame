@@ -10,5 +10,6 @@ public partial class AppShell : Shell
 		InitializeComponent();
 		MainShellContent.Content = mainHostPage;
 		Routing.RegisterRoute(nameof(SessionPage), typeof(SessionPage));
+		Routing.RegisterRoute(nameof(TriggerMethodInfoPage), typeof(TriggerMethodInfoPage));
 	}
 }

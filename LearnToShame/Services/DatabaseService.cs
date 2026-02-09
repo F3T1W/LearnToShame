@@ -56,6 +56,23 @@ public class DatabaseService
         // Заполнить дефолты для существующих строк (SQLite оставляет NULL в новых столбцах)
         await _database.ExecuteAsync("UPDATE UserProgress SET ContentLevel = 1 WHERE ContentLevel IS NULL OR ContentLevel < 1");
         await _database.ExecuteAsync("UPDATE UserProgress SET FastSessionsInRow = 0 WHERE FastSessionsInRow IS NULL");
+
+        try
+        {
+            await _database.ExecuteAsync("ALTER TABLE TrainingSession ADD COLUMN TriggerPhaseUsed INTEGER DEFAULT 0");
+        }
+        catch { /* column already exists */ }
+
+        try
+        {
+            await _database.ExecuteAsync("ALTER TABLE TrainingSession ADD COLUMN PreTriggerSeconds REAL DEFAULT -1");
+        }
+        catch { /* column already exists */ }
+        try
+        {
+            await _database.ExecuteAsync("ALTER TABLE TrainingSession ADD COLUMN TriggerSeconds REAL DEFAULT -1");
+        }
+        catch { /* column already exists */ }
     }
 
     private async Task SeedTasks()
@@ -125,10 +142,42 @@ public class DatabaseService
         await _database.UpdateAsync(task);
     }
 
+    /// <summary>Сбрасывает все задачи в «не выполнено» и обнуляет очки/уровень Roadmap.</summary>
+    public async Task ResetCompletedTasksAsync()
+    {
+        await Init();
+        if (_database is null) throw new InvalidOperationException("Database not initialized");
+        var tasks = await _database.Table<RoadmapTask>().ToListAsync();
+        foreach (var t in tasks)
+        {
+            if (t.IsCompleted)
+            {
+                t.IsCompleted = false;
+                await _database.UpdateAsync(t);
+            }
+        }
+        var progress = await GetUserProgressAsync();
+        progress.CurrentPoints = 0;
+        progress.CurrentLevel = DeveloperLevel.Intern;
+        progress.SessionsCompletedAtCurrentLevel = 0;
+        await UpdateUserProgressAsync(progress);
+    }
+
     public async Task AddSessionAsync(TrainingSession session)
     {
         await Init();
         if (_database is null) throw new InvalidOperationException("Database not initialized");
         await _database.InsertAsync(session);
+    }
+
+    /// <summary>Сессии по дате (старые первые) для графика статистики.</summary>
+    public async Task<List<TrainingSession>> GetSessionsForStatsAsync(int limit = 100)
+    {
+        await Init();
+        if (_database is null) throw new InvalidOperationException("Database not initialized");
+        var list = await _database.Table<TrainingSession>().OrderBy(s => s.Date).ToListAsync();
+        if (list.Count > limit)
+            list = list.Skip(list.Count - limit).ToList();
+        return list;
     }
 }

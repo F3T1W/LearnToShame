@@ -163,4 +163,17 @@ public partial class RoadmapViewModel : ObservableObject
             await InitializeAsync(); // Refresh
         }
     }
+
+    [RelayCommand]
+    private async Task ResetCompletedTasks()
+    {
+        bool confirm = await Shell.Current.DisplayAlertAsync(
+            _loc.GetString("ResetCompletedTasksTitle"),
+            _loc.GetString("ResetCompletedTasksMessage"),
+            _loc.GetString("Yes"),
+            _loc.GetString("No"));
+        if (!confirm) return;
+        await _db.ResetCompletedTasksAsync();
+        await InitializeAsync();
+    }
 }

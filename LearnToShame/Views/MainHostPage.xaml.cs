@@ -7,14 +7,16 @@ public partial class MainHostPage : ContentPage
 {
     private readonly RoadmapPage _roadmapPage;
     private readonly ShopPage _shopPage;
-    private bool _showRoadmap = true;
+    private readonly StatisticsPage _statisticsPage;
+    private int _activeTab; // 0 = Roadmap, 1 = Shop, 2 = Statistics
     private bool _roadmapDataLoaded;
 
-    public MainHostPage(RoadmapPage roadmapPage, ShopPage shopPage)
+    public MainHostPage(RoadmapPage roadmapPage, ShopPage shopPage, StatisticsPage statisticsPage)
     {
         InitializeComponent();
         _roadmapPage = roadmapPage;
         _shopPage = shopPage;
+        _statisticsPage = statisticsPage;
 
         LocalizationService.Instance.CultureChanged += (_, _) => UpdateTopBarTitle();
 
@@ -25,11 +27,20 @@ public partial class MainHostPage : ContentPage
         var shopTap = new TapGestureRecognizer();
         shopTap.Tapped += (_, _) => ShowShop();
         ShopTabBorder.GestureRecognizers.Add(shopTap);
+
+        var statisticsTap = new TapGestureRecognizer();
+        statisticsTap.Tapped += (_, _) => ShowStatistics();
+        StatisticsTabBorder.GestureRecognizers.Add(statisticsTap);
     }
 
     private void UpdateTopBarTitle()
     {
-        TopBarTitleLabel.Text = _showRoadmap ? LocalizedStrings.Instance.Roadmap : LocalizedStrings.Instance.Shop;
+        TopBarTitleLabel.Text = _activeTab switch
+        {
+            1 => LocalizedStrings.Instance.Shop,
+            2 => LocalizedStrings.Instance.Statistics,
+            _ => LocalizedStrings.Instance.Roadmap
+        };
     }
 
     private async void OnLanguageClicked(object? sender, EventArgs e)
@@ -57,8 +68,8 @@ public partial class MainHostPage : ContentPage
         {
             PartContent.Content = _roadmapPage.Content;
             PartContent.BindingContext = _roadmapPage.BindingContext;
-            SetTabColors(activeRoadmap: true);
-            _showRoadmap = true;
+            _activeTab = 0;
+            SetTabColors(0);
             UpdateTopBarTitle();
             _ = LoadRoadmapIfNeededAsync();
         }
@@ -101,18 +112,18 @@ public partial class MainHostPage : ContentPage
         }
         UpdateThemeButtonIcon();
         UpdateTabIcons();
-        SetTabColors(_showRoadmap);
+        SetTabColors(_activeTab);
     }
 
     private async void ShowRoadmap()
     {
-        if (!_showRoadmap)
+        if (_activeTab != 0)
         {
-            _showRoadmap = true;
+            _activeTab = 0;
             await PartContent.FadeTo(0, 150, Easing.CubicOut);
             PartContent.Content = _roadmapPage.Content;
             PartContent.BindingContext = _roadmapPage.BindingContext;
-            SetTabColors(activeRoadmap: true);
+            SetTabColors(0);
             UpdateTopBarTitle();
             await PartContent.FadeTo(1, 200, Easing.CubicIn);
             _ = LoadRoadmapIfNeededAsync();
@@ -132,29 +143,44 @@ public partial class MainHostPage : ContentPage
 
     private async void ShowShop()
     {
-        if (_showRoadmap)
+        if (_activeTab != 1)
         {
-            _showRoadmap = false;
+            _activeTab = 1;
             await PartContent.FadeTo(0, 150, Easing.CubicOut);
             PartContent.Content = _shopPage.Content;
             PartContent.BindingContext = _shopPage.BindingContext;
-            SetTabColors(activeRoadmap: false);
+            SetTabColors(1);
             UpdateTopBarTitle();
             await PartContent.FadeTo(1, 200, Easing.CubicIn);
             _ = (_shopPage.BindingContext as ViewModels.ShopViewModel)?.InitializeAsync();
         }
     }
 
-    private void SetTabColors(bool activeRoadmap)
+    private async void ShowStatistics()
+    {
+        if (_activeTab != 2)
+        {
+            _activeTab = 2;
+            await PartContent.FadeTo(0, 150, Easing.CubicOut);
+            PartContent.Content = _statisticsPage.Content;
+            PartContent.BindingContext = _statisticsPage.BindingContext;
+            SetTabColors(2);
+            UpdateTopBarTitle();
+            await PartContent.FadeTo(1, 200, Easing.CubicIn);
+            await ((_statisticsPage.BindingContext as ViewModels.StatisticsViewModel)?.InitializeAsync() ?? Task.CompletedTask);
+            _statisticsPage.RefreshChart();
+        }
+    }
+
+    private void SetTabColors(int activeTab)
     {
         var primarySubtle = ((Color)Application.Current!.Resources["Primary"]).WithAlpha(0.2f);
+        var transparent = new SolidColorBrush(Colors.Transparent);
+        var active = new SolidColorBrush(primarySubtle);
 
-        RoadmapTabBorder.Background = activeRoadmap
-            ? new SolidColorBrush(primarySubtle)
-            : new SolidColorBrush(Colors.Transparent);
-        ShopTabBorder.Background = activeRoadmap
-            ? new SolidColorBrush(Colors.Transparent)
-            : new SolidColorBrush(primarySubtle);
+        RoadmapTabBorder.Background = activeTab == 0 ? active : transparent;
+        ShopTabBorder.Background = activeTab == 1 ? active : transparent;
+        StatisticsTabBorder.Background = activeTab == 2 ? active : transparent;
     }
 }
 

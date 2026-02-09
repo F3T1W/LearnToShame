@@ -22,6 +22,10 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string AppName => _loc.GetString("AppName");
     public string Roadmap => _loc.GetString("Roadmap");
     public string Shop => _loc.GetString("Shop");
+    public string Statistics => _loc.GetString("Statistics");
+    public string Stats_NoData => _loc.GetString("Stats_NoData");
+    public string Stats_ChartCaption => _loc.GetString("Stats_ChartCaption");
+    public string Stats_ResetZoom => _loc.GetString("Stats_ResetZoom");
     public string PointsShop => _loc.GetString("PointsShop");
     public string YourPoints => _loc.GetString("YourPoints");
     public string BuySessionButton => _loc.GetString("BuySessionButton");
@@ -40,6 +44,11 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string Cancel => _loc.GetString("Cancel");
     public string OK => _loc.GetString("OK");
     public string PickContent => _loc.GetString("PickContent");
+    public string AddPreTrigger => _loc.GetString("AddPreTrigger");
+    public string AddTrigger => _loc.GetString("AddTrigger");
+    public string HowItWorks => _loc.GetString("HowItWorks");
+    public string HowItWorksTitle => _loc.GetString("HowItWorksTitle");
+    public string SwitchToTrigger => _loc.GetString("SwitchToTrigger");
 
     public string RewardPtsFormat => _loc.GetString("RewardPts");
     public string PageOfFormat => _loc.GetString("PageOf");
@@ -52,6 +61,7 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string Alert_SessionCompleteMessageFormat => _loc.GetString("Alert_SessionCompleteMessage");
 
     public string GetLevelName(string levelKey) => _loc.GetString(levelKey);
+    public string ResetCompletedTasksButton => _loc.GetString("ResetCompletedTasksButton");
 
     /// <summary>Меняется при смене языка — используется в MultiBinding, чтобы пересчитывать конвертеры карточек.</summary>
     public string LanguageCode => _loc.CurrentLanguage;
